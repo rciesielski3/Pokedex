@@ -23,7 +23,8 @@
     "reset": "cp \"./BE-service/backup/original_db.json\" ./BE-service/db.json",
     "FE-service": "npm run dev --workspace=FE-service",
     "BE-service": "npm run dev --workspace=BE-service",
-    "dev": "npm-run-all --parallel FE-service BE-service"
+    "dev": "npm-run-all --parallel FE-service BE-service",
+    "start": "npm run start --workspace=BE-service"
   },
   "devDependencies": {
     "gh-pages": "^6.1.1"
