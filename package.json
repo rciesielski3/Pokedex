@@ -1,5 +1,6 @@
 {
   "name": "Pokedex",
+  "homepage": "https://rciesielski3.github.io/Pokedex",
   "workspaces": [
     "BE-service",
     "FE-service"
@@ -16,8 +17,9 @@
     "zod": "^3.23.8"
   },
   "scripts": {
+    "build": "cd FE-service && vite build",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "gh-pages -d FE-service/dist",
     "reset": "cp \"./BE-service/backup/original_db.json\" ./BE-service/db.json",
     "FE-service": "npm run dev --workspace=FE-service",
     "BE-service": "npm run dev --workspace=BE-service",
