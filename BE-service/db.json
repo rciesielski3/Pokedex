@@ -135,14 +135,6 @@
       "url": "https://pokeapi.co/api/v2/pokemon/115"
     },
     {
-      "id": "3",
-      "name": "venusaur",
-      "height": 20,
-      "weight": 1000,
-      "base_experience": 263,
-      "url": "https://pokeapi.co/api/v2/pokemon/3"
-    },
-    {
       "id": "43",
       "name": "oddish",
       "height": 5,
@@ -237,9 +229,26 @@
       "weight": 550,
       "base_experience": 159,
       "url": "https://pokeapi.co/api/v2/pokemon/42"
+    },
+    {
+      "id": "3",
+      "name": "venusaur",
+      "height": 20,
+      "weight": 1000,
+      "base_experience": 263,
+      "url": "https://pokeapi.co/api/v2/pokemon/3"
     }
   ],
-  "arenaPokemons": [],
+  "arenaPokemons": [
+    {
+      "id": "5",
+      "name": "charmeleon",
+      "height": 11,
+      "weight": 190,
+      "base_experience": 142,
+      "url": "https://pokeapi.co/api/v2/pokemon/5"
+    }
+  ],
   "arenaFights": [
     {
       "id": "149",
