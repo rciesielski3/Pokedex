@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import arenaIcon from "../../../../icons/arena.png";
-import arenaIconSelected from "../../../../icons/arena-select.png";
+import arenaIcon from "../../../icons/arena.png";
+import arenaIconSelected from "../../../icons/arena-select.png";
 
 const StyledArenaIcon = styled.div`
   position: relative;

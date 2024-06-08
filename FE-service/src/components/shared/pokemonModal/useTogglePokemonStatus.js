@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { enqueueSnackbar } from "notistack";
-import useDataHandler from "../../../../hooks/useDataHandler";
-import useGetDbData from "../../../../hooks/useGetDbData";
-import { POKEMON_API_POKEMON } from "../../../../../../apiConfig";
+import useDataHandler from "../../../hooks/useDataHandler";
+import useGetDbData from "../../../hooks/useGetDbData";
+import { POKEMON_API_POKEMON } from "../../../../../apiConfig";
 
 const useTogglePokemonStatus = (pokemon) => {
   const { name, height, weight, base_experience } = pokemon;

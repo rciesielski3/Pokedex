@@ -13,7 +13,7 @@ import {
 } from "@mui/material";
 import Pagination from "../../../services/pagination/Pagination";
 import PokemonList from "../../shared/pokemonList/PokemonList";
-import PokemonModal from "../favorites/pokemonModal/PokemonModal";
+import PokemonModal from "../../shared/pokemonModal/PokemonModal";
 import usePokemonApi from "../../../hooks/usePokemonApi";
 import {
   PokemonListContainer,
@@ -24,6 +24,7 @@ import {
 import { useTheme } from "../../../context/ThemeContext";
 import { enqueueSnackbar } from "notistack";
 import usePagination from "../../../hooks/usePagination";
+import useFetch from "../../../hooks/useFetch";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -33,7 +34,7 @@ const StatisticsPage = () => {
   const [pokemonStats, setPokemonStats] = useState([]);
   const [sortBy, setSortBy] = useState("base_experience");
   const [sortOrder, setSortOrder] = useState("desc");
-  const [selectedPokemonId, setSelectedPokemonId] = useState(1);
+  const [selectedPokemonId, setSelectedPokemonId] = useState();
   const [modalOpen, setModalOpen] = useState(false);
 
   const {
@@ -43,10 +44,18 @@ const StatisticsPage = () => {
   } = useGetDbData("arenaFights");
 
   const {
+    data: allPokemonData,
+    loading: apiLoading,
+    error: apiError,
+  } = usePokemonApi(`pokemon?limit=150`);
+
+  const {
     data: selectedPokemon,
     loading: pokemonLoading,
     error: pokemonError,
-  } = usePokemonApi(selectedPokemonId ? `pokemon/${selectedPokemonId}` : null);
+  } = usePokemonApi(
+    selectedPokemonId ? `pokemon/${selectedPokemonId}` : `pokemon/1`
+  );
 
   const {
     currentPage,
@@ -56,20 +65,42 @@ const StatisticsPage = () => {
   } = usePagination(pokemonStats, ITEMS_PER_PAGE);
 
   useEffect(() => {
-    if (arenaFightsData) {
-      const sortedData = [...arenaFightsData].sort((a, b) => {
-        if (sortOrder === "asc") {
-          return a[sortBy] > b[sortBy] ? 1 : -1;
-        } else {
-          return a[sortBy] < b[sortBy] ? 1 : -1;
-        }
-      });
-      setPokemonStats(sortedData);
-      if (sortedData.length > 0) {
-        setSelectedPokemonId(sortedData[0].id);
-      }
+    if (arenaFightsData && allPokemonData) {
+      const fetchAdditionalData = async () => {
+        const apiData = await Promise.all(
+          allPokemonData.results.map(async (pokemon) => {
+            const response = await fetch(pokemon.url);
+            const data = await response.json();
+            return { ...data, fromDb: false };
+          })
+        );
+
+        const uniquePokemons = [
+          ...arenaFightsData.map((dbPokemon) => ({
+            ...dbPokemon,
+            fromDb: true,
+          })),
+        ];
+
+        apiData.forEach((apiPokemon) => {
+          if (!uniquePokemons.some((p) => p.name === apiPokemon.name)) {
+            uniquePokemons.push(apiPokemon);
+          }
+        });
+
+        const sortedData = [...uniquePokemons].sort((a, b) => {
+          if (sortOrder === "asc") {
+            return a[sortBy] > b[sortBy] ? 1 : -1;
+          } else {
+            return a[sortBy] < b[sortBy] ? 1 : -1;
+          }
+        });
+        setPokemonStats(sortedData);
+      };
+
+      fetchAdditionalData();
     }
-  }, [arenaFightsData, sortBy, sortOrder]);
+  }, [arenaFightsData, allPokemonData, sortBy, sortOrder]);
 
   const handleChangeSortBy = (event) => {
     setSortBy(event.target.value);
@@ -81,7 +112,7 @@ const StatisticsPage = () => {
 
   const handleMoreInfoClick = (id) => {
     setSelectedPokemonId(id);
-    !selectedPokemonId ? pokemonLoading : setModalOpen(true);
+    setModalOpen(true);
   };
 
   const handleCloseModal = () => {
@@ -89,13 +120,13 @@ const StatisticsPage = () => {
     setSelectedPokemonId(1);
   };
 
-  if (fightsLoading || pokemonLoading) {
+  if (fightsLoading || pokemonLoading || apiLoading) {
     return <CircularProgress />;
   }
 
-  if (fightsError || pokemonError) {
+  if (fightsError || pokemonError || apiError) {
     return enqueueSnackbar(
-      `Error loading data: ${fightsError || pokemonError}`,
+      `Error loading data: ${fightsError || pokemonError || apiError}`,
       {
         variant: "error",
       }
@@ -145,7 +176,13 @@ const StatisticsPage = () => {
           buttonText="More Info"
           extraInfo={(pokemon) => (
             <>
-              Wins: {pokemon.win} / Losses: {pokemon.lose}
+              {pokemon.fromDb ? (
+                <>
+                  Wins: {pokemon.win} / Losses: {pokemon.lose}
+                </>
+              ) : (
+                <>No stats available</>
+              )}
             </>
           )}
         />

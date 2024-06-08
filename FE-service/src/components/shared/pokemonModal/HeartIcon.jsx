@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import heartIcon from "../../../../icons/heart.png";
-import heartIconFav from "../../../../icons/heart-fav.png";
+import heartIcon from "../../../icons/heart.png";
+import heartIconFav from "../../../icons/heart-fav.png";
 
 const StyledHeartIcon = styled.div`
   position: absolute;

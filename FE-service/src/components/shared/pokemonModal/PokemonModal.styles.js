@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { darkTheme, lightTheme } from "../../../shared/theme/themes";
+import { darkTheme, lightTheme } from "../theme/themes";
 
 export const ModalContainer = styled.div`
   position: fixed;
