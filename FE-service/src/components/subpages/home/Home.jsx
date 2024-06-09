@@ -1,16 +1,16 @@
 import { useState } from "react";
-import usePokemonApi from "../../../hooks/usePokemonApi";
+import { CircularProgress, Typography } from "@mui/material";
 import {
   PokemonListContainer,
   SearchInput,
   PokemonListWrapper,
 } from "./Home.styles";
-import { CircularProgress, Typography } from "@mui/material";
+import { useTheme } from "../../../context/ThemeContext";
 import Pagination from "../../../services/pagination/Pagination";
 import PokemonCard from "../../shared/pokemonCard/PokemonCard";
-import { enqueueSnackbar } from "notistack";
-import { useTheme } from "../../../context/ThemeContext";
 import Footer from "../../shared/login/Footer";
+import usePokemonApi from "../../../hooks/usePokemonApi";
+import { enqueueSnackbar } from "notistack";
 
 const ITEMS_PER_PAGE = 15;
 

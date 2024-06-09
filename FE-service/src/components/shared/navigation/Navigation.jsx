@@ -1,5 +1,6 @@
-import { AppBar, Tabs, Tab, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AppBar, Tabs, Tab, Typography } from "@mui/material";
 import {
   NavigationContainer,
   Logo,
@@ -14,7 +15,6 @@ import pokemonLogo from "../../../icons/pokemon-logo.png";
 import headerImg from "../../../icons/pokemon-header.png";
 import CustomizedSwitches from "../../../services/switch/CustomizedSwitches";
 import { useTheme } from "../../../context/ThemeContext";
-import { useContext } from "react";
 import { LoginContext } from "../../../context/LoginContext";
 
 const Navigation = ({ handleLogin, handleRegister }) => {

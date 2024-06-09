@@ -1,18 +1,17 @@
 import { useState } from "react";
 import { CircularProgress } from "@mui/material";
-import usePokemonApi from "../../../hooks/usePokemonApi";
-import PokemonModal from "../pokemonModal/PokemonModal";
 import {
   CardContainer,
   PokemonImage,
   PokemonName,
   PokemonAttribute,
 } from "./PokemonCard.styles";
+import PokemonModal from "../pokemonModal/PokemonModal";
+import usePokemonApi from "../../../hooks/usePokemonApi";
 import { useTheme } from "../../../context/ThemeContext";
 import { enqueueSnackbar } from "notistack";
 
 const PokemonCard = ({ pokemon }) => {
-  // console.log("PokemonCard " + JSON.stringify(pokemon));
   const { name, url } = pokemon;
   const endpoint = url.split("api/v2/")[1];
   const { data, loading, error } = usePokemonApi(endpoint);

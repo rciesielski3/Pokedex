@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import useGetDbData from "../../../hooks/useGetDbData";
 import { CircularProgress, Typography } from "@mui/material";
-import PokemonCard from "../../shared/pokemonCard/PokemonCard";
-import Pagination from "../../../services/pagination/Pagination";
-import { enqueueSnackbar } from "notistack";
 import {
   FavoritesContainer,
   PokemonListContainer,
   PokemonListWrapper,
 } from "./FavoritesPage.styles";
-import { useTheme } from "../../../context/ThemeContext";
+import PokemonCard from "../../shared/pokemonCard/PokemonCard";
+import Pagination from "../../../services/pagination/Pagination";
 import usePagination from "../../../hooks/usePagination";
+import useGetDbData from "../../../hooks/useGetDbData";
+import { enqueueSnackbar } from "notistack";
+import { useTheme } from "../../../context/ThemeContext";
 
 const ITEMS_PER_PAGE = 15;
 

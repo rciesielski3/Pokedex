@@ -1,3 +1,7 @@
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createPortal } from "react-dom";
+import { useForm } from "react-hook-form";
 import {
   TextField,
   Button,
@@ -9,10 +13,6 @@ import {
   AccordionDetails,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { createPortal } from "react-dom";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ModalOverlay,
   ModalContent,
@@ -20,8 +20,8 @@ import {
 } from "../../subpages/edition/EditionPage.styles";
 import useDataHandler from "../../../hooks/useDataHandler";
 import useGetDbData from "../../../hooks/useGetDbData";
-import { enqueueSnackbar } from "notistack";
 import { useTheme } from "../../../context/ThemeContext";
+import { enqueueSnackbar } from "notistack";
 
 const schema = z
   .object({

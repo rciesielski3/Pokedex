@@ -1,4 +1,5 @@
 import { createPortal } from "react-dom";
+import { Typography } from "@mui/material";
 import {
   ModalOverlay,
   ModalContainer,
@@ -7,7 +8,6 @@ import {
   PokemonName,
   PokemonImage,
 } from "./WinnerModal.styles";
-import { Typography } from "@mui/material";
 import { useTheme } from "../../../context/ThemeContext";
 import { POKEMON_IMG } from "../../../../../apiConfig";
 

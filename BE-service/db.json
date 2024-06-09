@@ -237,16 +237,24 @@
       "weight": 1000,
       "base_experience": 263,
       "url": "https://pokeapi.co/api/v2/pokemon/3"
+    },
+    {
+      "id": "101",
+      "name": "electrode",
+      "height": 12,
+      "weight": 666,
+      "base_experience": 172,
+      "url": "https://pokeapi.co/api/v2/pokemon/101"
     }
   ],
   "arenaPokemons": [
     {
-      "id": "113",
-      "name": "chansey",
-      "height": 11,
-      "weight": 346,
-      "base_experience": 395,
-      "url": "https://pokeapi.co/api/v2/pokemon/113"
+      "id": "101",
+      "name": "electrode",
+      "height": 12,
+      "weight": 666,
+      "base_experience": 172,
+      "url": "https://pokeapi.co/api/v2/pokemon/101"
     }
   ],
   "arenaFights": [
@@ -459,40 +467,36 @@
       "win": 0,
       "lose": 1,
       "url": "https://pokeapi.co/api/v2/pokemon/50"
+    },
+    {
+      "id": "113",
+      "name": "chansey",
+      "height": 11,
+      "weight": 346,
+      "base_experience": 405,
+      "win": 0,
+      "lose": 1,
+      "url": "https://pokeapi.co/api/v2/pokemon/113"
+    },
+    {
+      "id": "128",
+      "name": "tauros",
+      "height": 14,
+      "weight": 884,
+      "base_experience": 182,
+      "win": 1,
+      "lose": 0,
+      "url": "https://pokeapi.co/api/v2/pokemon/128"
     }
   ],
   "pokemons": [
     {
-      "id": "51",
-      "name": "dugtrio",
-      "height": 12,
-      "weight": 1,
-      "base_experience": 149,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/51.svg"
-    },
-    {
-      "id": "54",
-      "name": "psyduck",
-      "height": "10",
-      "weight": 196,
-      "base_experience": 64,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/54.svg"
-    },
-    {
-      "id": "89",
-      "name": "muk",
-      "height": 12,
-      "weight": 300,
-      "base_experience": 175,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/89.svg"
-    },
-    {
       "id": "1",
       "name": "bulbasaur",
-      "height": 7,
+      "height": 9,
       "weight": 69,
       "base_experience": 64,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/1.svg"
+      "url": "https://pokeapi.co/api/v2/pokemon/1"
     },
     {
       "id": "3",
@@ -500,7 +504,7 @@
       "height": 20,
       "weight": 1000,
       "base_experience": 263,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/3.svg"
+      "url": "https://pokeapi.co/api/v2/pokemon/3"
     },
     {
       "id": "154",
@@ -508,7 +512,7 @@
       "height": 4,
       "weight": 123,
       "base_experience": 32,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/154.svg"
+      "url": "https://pokeapi.co/api/v2/pokemon/154"
     },
     {
       "id": "160",
@@ -516,7 +520,31 @@
       "height": 321,
       "weight": 332,
       "base_experience": 2234,
-      "img": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/160.svg"
+      "url": "https://pokeapi.co/api/v2/pokemon/160"
+    },
+    {
+      "id": "30",
+      "name": "nidorina",
+      "height": 82,
+      "weight": 200,
+      "base_experience": 128,
+      "url": "https://pokeapi.co/api/v2/pokemon/30"
+    },
+    {
+      "id": "48",
+      "name": "venonat",
+      "height": 11,
+      "weight": 300,
+      "base_experience": 61,
+      "url": "https://pokeapi.co/api/v2/pokemon/48"
+    },
+    {
+      "id": "90",
+      "name": "shellder",
+      "height": 4,
+      "weight": 40,
+      "base_experience": 61,
+      "url": "https://pokeapi.co/api/v2/pokemon/90"
     }
   ]
 }

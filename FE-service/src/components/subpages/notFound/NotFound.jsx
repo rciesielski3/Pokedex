@@ -1,7 +1,7 @@
 import { Typography, Button } from "@mui/material";
+import { NotFoundContainer } from "./NotFound.styles";
 import { Link } from "react-router-dom";
 import { useTheme } from "../../../context/ThemeContext";
-import { NotFoundContainer } from "./NotFound.styles";
 
 const NotFound = () => {
   const { theme } = useTheme();

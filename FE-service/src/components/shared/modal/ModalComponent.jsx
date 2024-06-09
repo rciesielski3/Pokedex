@@ -1,6 +1,6 @@
 import { Modal, Typography, Button } from "@mui/material";
-import { useTheme } from "../../../context/ThemeContext";
 import { ModalContent } from "./ModalComponent.styles";
+import { useTheme } from "../../../context/ThemeContext";
 
 const ModalComponent = ({ open, onClose, title, message }) => {
   const { theme } = useTheme();

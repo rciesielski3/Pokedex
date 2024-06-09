@@ -1,3 +1,8 @@
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createPortal } from "react-dom";
+import { useForm } from "react-hook-form";
+import { useContext } from "react";
 import {
   TextField,
   Button,
@@ -5,20 +10,15 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-import { createPortal } from "react-dom";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { enqueueSnackbar } from "notistack";
-import useGetDbData from "../../../hooks/useGetDbData";
 import {
   ModalOverlay,
   ModalContent,
   FormContent,
 } from "../../subpages/edition/EditionPage.styles";
-import { useContext } from "react";
+import useGetDbData from "../../../hooks/useGetDbData";
 import { LoginContext } from "../../../context/LoginContext";
 import { useTheme } from "../../../context/ThemeContext";
+import { enqueueSnackbar } from "notistack";
 
 const schema = z.object({
   name: z

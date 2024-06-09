@@ -1,4 +1,8 @@
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   TextField,
   Button,
@@ -6,9 +10,6 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-import useGetDbData from "../../../../hooks/useGetDbData";
-import useDataHandler from "../../../../hooks/useDataHandler";
-import { createPortal } from "react-dom";
 import {
   ModalOverlay,
   ModalContent,
@@ -16,10 +17,11 @@ import {
   PokemonName,
 } from "../EditionPage.styles";
 import { useTheme } from "../../../../context/ThemeContext";
+import useDataHandler from "../../../../hooks/useDataHandler";
+import usePokemonApi from "../../../../hooks/usePokemonApi";
+import useGetDbData from "../../../../hooks/useGetDbData";
+import { POKEMON_API_POKEMON, POKEMON_IMG } from "../../../../../../apiConfig";
 import { enqueueSnackbar } from "notistack";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const schema = z.object({
   height: z.number().positive("Height must be a positive number"),
@@ -31,11 +33,12 @@ const schema = z.object({
 
 const EditPokemonForm = ({ pokemonId, onClose }) => {
   const {
-    data: pokemon,
-    loading,
-    error,
-  } = useGetDbData(`pokemons/${pokemonId}`);
-  const { putData } = useDataHandler("pokemons");
+    data: pokemonData,
+    loading: pokemonLoading,
+    error: pokemonError,
+  } = useGetDbData("pokemons");
+  const { putData, postData } = useDataHandler("pokemons");
+
   const { theme } = useTheme();
 
   const {
@@ -46,6 +49,12 @@ const EditPokemonForm = ({ pokemonId, onClose }) => {
   } = useForm({
     resolver: zodResolver(schema),
   });
+
+  const {
+    data: pokemon,
+    loading,
+    error,
+  } = usePokemonApi(`pokemon/${pokemonId}`);
 
   useEffect(() => {
     if (pokemon) {
@@ -60,16 +69,32 @@ const EditPokemonForm = ({ pokemonId, onClose }) => {
     }
   }, [pokemon, error, setValue]);
 
+  if (pokemonLoading) {
+    return <CircularProgress />;
+  }
+
+  if (pokemonError) {
+    return enqueueSnackbar(`Error loading Pokémon data: ${pokemonError}`, {
+      variant: "error",
+    });
+  }
+
   const handleEditPokemon = async (data) => {
     const updatedPokemon = {
-      ...pokemon,
+      id: String(pokemon.id),
+      name: pokemon.name,
       height: data.height,
       weight: data.weight,
       base_experience: data.base_experience,
+      url: `${POKEMON_API_POKEMON}/${pokemon.id}`,
     };
 
     try {
-      await putData(pokemonId, updatedPokemon);
+      if (pokemonData.find((p) => p.name === pokemon.name)) {
+        await putData(pokemonId, updatedPokemon);
+      } else {
+        await postData(updatedPokemon);
+      }
       enqueueSnackbar(`Attributes for ${pokemon.name} have been changed`, {
         variant: "success",
       });
@@ -91,13 +116,13 @@ const EditPokemonForm = ({ pokemonId, onClose }) => {
           <form onSubmit={handleSubmit(handleEditPokemon)}>
             <FormContent>
               <img
-                src={pokemon.img}
+                src={`${POKEMON_IMG}/${pokemon.id}.svg`}
                 alt={pokemon.name}
-                width={100}
-                height={100}
+                width={150}
+                height={150}
               />
               <PokemonName style={{ textTransform: "capitalize" }}>
-                {pokemon.name}
+                {pokemon?.name}
               </PokemonName>
               <TextField
                 type="number"

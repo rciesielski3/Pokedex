@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import useGetDbData from "../../../hooks/useGetDbData";
 import {
   CircularProgress,
   Typography,
@@ -11,22 +10,22 @@ import {
   Select,
   InputLabel,
 } from "@mui/material";
-import Pagination from "../../../services/pagination/Pagination";
-import PokemonList from "../../shared/pokemonList/PokemonList";
-import PokemonModal from "../../shared/pokemonModal/PokemonModal";
-import usePokemonApi from "../../../hooks/usePokemonApi";
 import {
   PokemonListContainer,
   SortContainer,
   RadioGroupContainer,
   StatisticsContainer,
 } from "./StatisticsPage.styles";
+import Pagination from "../../../services/pagination/Pagination";
+import PokemonList from "../../shared/pokemonList/PokemonList";
+import PokemonModal from "../../shared/pokemonModal/PokemonModal";
+import usePokemonApi from "../../../hooks/usePokemonApi";
+import usePagination from "../../../hooks/usePagination";
+import useCombinedPokemonData from "../../../hooks/useCombinedPokemonData";
 import { useTheme } from "../../../context/ThemeContext";
 import { enqueueSnackbar } from "notistack";
-import usePagination from "../../../hooks/usePagination";
-import useFetch from "../../../hooks/useFetch";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 15;
 
 const StatisticsPage = () => {
   const { theme } = useTheme();
@@ -38,16 +37,16 @@ const StatisticsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const {
-    data: arenaFightsData,
-    loading: fightsLoading,
-    error: fightsError,
-  } = useGetDbData("arenaFights");
-
-  const {
-    data: allPokemonData,
+    data: apiPokemonsData,
     loading: apiLoading,
     error: apiError,
   } = usePokemonApi(`pokemon?limit=150`);
+
+  const {
+    combinedPokemonData,
+    loading: combinedLoading,
+    error: combinedError,
+  } = useCombinedPokemonData("arenaFights", apiPokemonsData);
 
   const {
     data: selectedPokemon,
@@ -65,42 +64,17 @@ const StatisticsPage = () => {
   } = usePagination(pokemonStats, ITEMS_PER_PAGE);
 
   useEffect(() => {
-    if (arenaFightsData && allPokemonData) {
-      const fetchAdditionalData = async () => {
-        const apiData = await Promise.all(
-          allPokemonData.results.map(async (pokemon) => {
-            const response = await fetch(pokemon.url);
-            const data = await response.json();
-            return { ...data, fromDb: false };
-          })
-        );
-
-        const uniquePokemons = [
-          ...arenaFightsData.map((dbPokemon) => ({
-            ...dbPokemon,
-            fromDb: true,
-          })),
-        ];
-
-        apiData.forEach((apiPokemon) => {
-          if (!uniquePokemons.some((p) => p.name === apiPokemon.name)) {
-            uniquePokemons.push(apiPokemon);
-          }
-        });
-
-        const sortedData = [...uniquePokemons].sort((a, b) => {
-          if (sortOrder === "asc") {
-            return a[sortBy] > b[sortBy] ? 1 : -1;
-          } else {
-            return a[sortBy] < b[sortBy] ? 1 : -1;
-          }
-        });
-        setPokemonStats(sortedData);
-      };
-
-      fetchAdditionalData();
+    if (combinedPokemonData && apiPokemonsData) {
+      const sortedData = [...combinedPokemonData].sort((a, b) => {
+        if (sortOrder === "asc") {
+          return a[sortBy] > b[sortBy] ? 1 : -1;
+        } else {
+          return a[sortBy] < b[sortBy] ? 1 : -1;
+        }
+      });
+      setPokemonStats(sortedData);
     }
-  }, [arenaFightsData, allPokemonData, sortBy, sortOrder]);
+  }, [combinedPokemonData, apiPokemonsData, sortBy, sortOrder]);
 
   const handleChangeSortBy = (event) => {
     setSortBy(event.target.value);
@@ -120,13 +94,13 @@ const StatisticsPage = () => {
     setSelectedPokemonId(1);
   };
 
-  if (fightsLoading || pokemonLoading || apiLoading) {
+  if (combinedLoading || pokemonLoading || apiLoading) {
     return <CircularProgress />;
   }
 
-  if (fightsError || pokemonError || apiError) {
+  if (combinedError || pokemonError || apiError) {
     return enqueueSnackbar(
-      `Error loading data: ${fightsError || pokemonError || apiError}`,
+      `Error loading data: ${combinedError || pokemonError || apiError}`,
       {
         variant: "error",
       }

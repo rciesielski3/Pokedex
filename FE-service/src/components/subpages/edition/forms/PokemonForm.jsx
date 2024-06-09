@@ -1,3 +1,7 @@
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createPortal } from "react-dom";
+import { useForm } from "react-hook-form";
 import { useState, useEffect } from "react";
 import {
   TextField,
@@ -6,14 +10,12 @@ import {
   CircularProgress,
   FormHelperText,
 } from "@mui/material";
-import { createPortal } from "react-dom";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ModalOverlay, ModalContent, FormContent } from "../EditionPage.styles";
 import usePokemonApi from "../../../../hooks/usePokemonApi";
 import useDataHandler from "../../../../hooks/useDataHandler";
 import useGetDbData from "../../../../hooks/useGetDbData";
+import { POKEMON_API_POKEMON } from "../../../../../../apiConfig";
+import { useTheme } from "../../../../context/ThemeContext";
 import { enqueueSnackbar } from "notistack";
 
 const schema = z.object({
@@ -35,7 +37,7 @@ const PokemonForm = ({ onClose }) => {
   } = usePokemonApi(`pokemon/${imgIndex}`);
   const { postData } = useDataHandler("pokemons");
   const { data: pokemonsDbData } = useGetDbData("pokemons");
-
+  const { theme } = useTheme();
   const [img, setImg] = useState("");
 
   const {
@@ -74,11 +76,10 @@ const PokemonForm = ({ onClose }) => {
       );
       return;
     }
-
     const newPokemon = {
       id: String(imgIndex),
       ...data,
-      img,
+      url: `${POKEMON_API_POKEMON}/${imgIndex}`,
     };
 
     try {
@@ -102,7 +103,7 @@ const PokemonForm = ({ onClose }) => {
 
   return createPortal(
     <ModalOverlay>
-      <ModalContent>
+      <ModalContent theme={theme}>
         <Typography variant="h5">Create New Pokémon</Typography>
         {loading ? (
           <CircularProgress />

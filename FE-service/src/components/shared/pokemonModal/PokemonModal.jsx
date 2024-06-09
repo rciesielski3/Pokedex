@@ -1,14 +1,13 @@
 import { useContext } from "react";
 import { ModalContainer, PokemonImage, Backdrop } from "./PokemonModal.styles";
-import { useTheme } from "../../../context/ThemeContext";
 import HeartIcon from "./HeartIcon";
 import ArenaIcon from "./ArenaIcon";
+import { useTheme } from "../../../context/ThemeContext";
 import { LoginContext } from "../../../context/LoginContext";
 import useTogglePokemonStatus from "./useTogglePokemonStatus";
 
 const PokemonModal = ({ pokemon, onClose }) => {
   const { isLoggedIn } = useContext(LoginContext);
-  console.log("PokemonModal" + JSON.stringify(pokemon));
   const { name, sprites, stats } = pokemon;
   const { theme } = useTheme();
   const { isFavorite, inArena, arenaPokemons, togglePokemonStatus } =
