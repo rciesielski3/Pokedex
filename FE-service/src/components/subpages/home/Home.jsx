@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CircularProgress, Typography } from "@mui/material";
 import {
   PokemonListContainer,
@@ -11,6 +11,7 @@ import PokemonCard from "../../shared/pokemonCard/PokemonCard";
 import Footer from "../../shared/login/Footer";
 import usePokemonApi from "../../../hooks/usePokemonApi";
 import { enqueueSnackbar } from "notistack";
+import useCombinedPokemonData from "../../../hooks/useCombinedPokemonData";
 
 const ITEMS_PER_PAGE = 15;
 
@@ -18,11 +19,41 @@ const Home = () => {
   const { theme } = useTheme();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
   const {
-    data: allPokemonData,
-    loading,
-    error,
+    data: apiPokemonsData,
+    loading: apiLoading,
+    error: apiError,
   } = usePokemonApi(`pokemon?limit=150`);
+
+  const {
+    combinedPokemonData,
+    loading: combinedLoading,
+    error: combinedError,
+  } = useCombinedPokemonData(apiPokemonsData);
+
+  const [filteredPokemon, setFilteredPokemon] = useState([]);
+  const [slicedPokemonData, setSlicedPokemonData] = useState([]);
+  const [totalPages, setTotalPages] = useState(0);
+
+  useEffect(() => {
+    if (combinedPokemonData) {
+      const filtered = searchTerm
+        ? combinedPokemonData.filter((pokemon) =>
+            pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : combinedPokemonData;
+
+      setFilteredPokemon(filtered);
+      setTotalPages(Math.ceil(filtered.length / ITEMS_PER_PAGE));
+      setSlicedPokemonData(
+        filtered.slice(
+          (currentPage - 1) * ITEMS_PER_PAGE,
+          currentPage * ITEMS_PER_PAGE
+        )
+      );
+    }
+  }, [combinedPokemonData, searchTerm, currentPage]);
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
@@ -33,28 +64,17 @@ const Home = () => {
     setCurrentPage(page);
   };
 
-  if (loading) {
+  if (combinedLoading || apiLoading) {
     return <CircularProgress />;
   }
 
-  if (error) {
-    return enqueueSnackbar(`Error loading Pokémon data: ${error}`, {
-      variant: "error",
-    });
+  if (combinedError || apiError) {
+    enqueueSnackbar(
+      `Error loading Pokémon data: ${combinedError || apiError.message}`,
+      { variant: "error" }
+    );
+    return null;
   }
-
-  let filteredPokemon = searchTerm
-    ? allPokemonData.results.filter((pokemon) =>
-        pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : allPokemonData.results;
-
-  const totalPages = Math.ceil(filteredPokemon.length / ITEMS_PER_PAGE);
-
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-
-  const slicedPokemonData = filteredPokemon.slice(startIndex, endIndex);
 
   return (
     <PokemonListContainer theme={theme}>

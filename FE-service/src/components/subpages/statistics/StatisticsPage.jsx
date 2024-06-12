@@ -10,22 +10,22 @@ import {
   Select,
   InputLabel,
 } from "@mui/material";
+import Pagination from "../../../services/pagination/Pagination";
+import PokemonList from "../../shared/pokemonList/PokemonList";
+import PokemonModal from "../../shared/pokemonModal/PokemonModal";
+import usePokemonApi from "../../../hooks/usePokemonApi";
 import {
   PokemonListContainer,
   SortContainer,
   RadioGroupContainer,
   StatisticsContainer,
 } from "./StatisticsPage.styles";
-import Pagination from "../../../services/pagination/Pagination";
-import PokemonList from "../../shared/pokemonList/PokemonList";
-import PokemonModal from "../../shared/pokemonModal/PokemonModal";
-import usePokemonApi from "../../../hooks/usePokemonApi";
-import usePagination from "../../../hooks/usePagination";
-import useCombinedPokemonData from "../../../hooks/useCombinedPokemonData";
 import { useTheme } from "../../../context/ThemeContext";
 import { enqueueSnackbar } from "notistack";
+import usePagination from "../../../hooks/usePagination";
+import useCombinedPokemonData from "../../../hooks/useCombinedPokemonData";
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 10;
 
 const StatisticsPage = () => {
   const { theme } = useTheme();
@@ -37,7 +37,7 @@ const StatisticsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const {
-    data: apiPokemonsData,
+    data: allPokemonData,
     loading: apiLoading,
     error: apiError,
   } = usePokemonApi(`pokemon?limit=150`);
@@ -46,7 +46,7 @@ const StatisticsPage = () => {
     combinedPokemonData,
     loading: combinedLoading,
     error: combinedError,
-  } = useCombinedPokemonData("arenaFights", apiPokemonsData);
+  } = useCombinedPokemonData(allPokemonData);
 
   const {
     data: selectedPokemon,
@@ -64,7 +64,7 @@ const StatisticsPage = () => {
   } = usePagination(pokemonStats, ITEMS_PER_PAGE);
 
   useEffect(() => {
-    if (combinedPokemonData && apiPokemonsData) {
+    if (combinedPokemonData && allPokemonData) {
       const sortedData = [...combinedPokemonData].sort((a, b) => {
         if (sortOrder === "asc") {
           return a[sortBy] > b[sortBy] ? 1 : -1;
@@ -74,7 +74,7 @@ const StatisticsPage = () => {
       });
       setPokemonStats(sortedData);
     }
-  }, [combinedPokemonData, apiPokemonsData, sortBy, sortOrder]);
+  }, [combinedPokemonData, allPokemonData, sortBy, sortOrder]);
 
   const handleChangeSortBy = (event) => {
     setSortBy(event.target.value);
@@ -94,13 +94,13 @@ const StatisticsPage = () => {
     setSelectedPokemonId(1);
   };
 
-  if (combinedLoading || pokemonLoading || apiLoading) {
+  if (pokemonLoading || apiLoading || combinedLoading) {
     return <CircularProgress />;
   }
 
-  if (combinedError || pokemonError || apiError) {
+  if (pokemonError || apiError || combinedError) {
     return enqueueSnackbar(
-      `Error loading data: ${combinedError || pokemonError || apiError}`,
+      `Error loading data: ${pokemonError || apiError || combinedError}`,
       {
         variant: "error",
       }

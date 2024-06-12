@@ -17,10 +17,10 @@ import TrashImage from "../../../icons/trash.png";
 import PokeballImage from "../../../icons/pokeball.png";
 import PokemonCard from "../../shared/pokemonCard/PokemonCard";
 import { useTheme } from "../../../context/ThemeContext";
-import useGetDbData from "../../../hooks/useGetDbData";
 import WinnerModal from "./WinnerModal";
 import useHandleFight from "./useHandleFight";
 import { enqueueSnackbar } from "notistack";
+import useGetDbData from "../../../hooks/useGetDbData";
 
 const ArenaPage = () => {
   const {

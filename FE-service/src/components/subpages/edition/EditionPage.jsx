@@ -29,7 +29,7 @@ const EditionPage = () => {
     combinedPokemonData,
     loading: combinedLoading,
     error: combinedError,
-  } = useCombinedPokemonData("pokemons", apiPokemonsData);
+  } = useCombinedPokemonData(apiPokemonsData);
 
   useEffect(() => {
     if (combinedPokemonData && apiPokemonsData) {
