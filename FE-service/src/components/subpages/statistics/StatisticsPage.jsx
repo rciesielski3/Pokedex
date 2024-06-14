@@ -37,16 +37,10 @@ const StatisticsPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const {
-    data: allPokemonData,
-    loading: apiLoading,
-    error: apiError,
-  } = usePokemonApi(`pokemon?limit=150`);
-
-  const {
     combinedPokemonData,
     loading: combinedLoading,
     error: combinedError,
-  } = useCombinedPokemonData(allPokemonData);
+  } = useCombinedPokemonData();
 
   const {
     data: selectedPokemon,
@@ -64,7 +58,7 @@ const StatisticsPage = () => {
   } = usePagination(pokemonStats, ITEMS_PER_PAGE);
 
   useEffect(() => {
-    if (combinedPokemonData && allPokemonData) {
+    if (combinedPokemonData) {
       const sortedData = [...combinedPokemonData].sort((a, b) => {
         if (sortOrder === "asc") {
           return a[sortBy] > b[sortBy] ? 1 : -1;
@@ -74,7 +68,7 @@ const StatisticsPage = () => {
       });
       setPokemonStats(sortedData);
     }
-  }, [combinedPokemonData, allPokemonData, sortBy, sortOrder]);
+  }, [combinedPokemonData, sortBy, sortOrder]);
 
   const handleChangeSortBy = (event) => {
     setSortBy(event.target.value);
@@ -94,23 +88,32 @@ const StatisticsPage = () => {
     setSelectedPokemonId(1);
   };
 
-  if (pokemonLoading || apiLoading || combinedLoading) {
+  if (pokemonLoading || combinedLoading) {
     return <CircularProgress />;
   }
 
-  if (pokemonError || apiError || combinedError) {
+  if (pokemonError || combinedError) {
     return enqueueSnackbar(
-      `Error loading data: ${pokemonError || apiError || combinedError}`,
+      `Error loading data: ${pokemonError || combinedError}`,
       {
         variant: "error",
       }
     );
   }
 
+  const modalData = selectedPokemonId
+    ? {
+        ...selectedPokemon,
+        name:
+          combinedPokemonData.find((p) => p.id === selectedPokemonId)?.name ||
+          selectedPokemon?.name,
+      }
+    : null;
+
   return (
     <StatisticsContainer theme={theme}>
-      {modalOpen && selectedPokemon && !pokemonLoading && (
-        <PokemonModal pokemon={selectedPokemon} onClose={handleCloseModal} />
+      {modalOpen && modalData && (
+        <PokemonModal pokemon={modalData} onClose={handleCloseModal} />
       )}
       {pokemonLoading && <CircularProgress />}
       {pokemonError && <p>Error: {pokemonError}</p>}
@@ -148,17 +151,17 @@ const StatisticsPage = () => {
           pokemonsData={slicedPokemonData}
           onClickHandle={handleMoreInfoClick}
           buttonText="More Info"
-          extraInfo={(pokemon) => (
-            <>
-              {pokemon.fromDb ? (
+          extraInfo={(pokemon) =>
+            pokemon.fromDb ? (
+              pokemon.win !== undefined && pokemon.lose !== undefined ? (
                 <>
                   Wins: {pokemon.win} / Losses: {pokemon.lose}
                 </>
               ) : (
                 <>No stats available</>
-              )}
-            </>
-          )}
+              )
+            ) : null
+          }
         />
         <Pagination
           currentPage={currentPage}

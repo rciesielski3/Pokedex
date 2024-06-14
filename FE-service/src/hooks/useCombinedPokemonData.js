@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
 import useGetDbData from "./useGetDbData";
+import usePokemonApi from "./usePokemonApi";
 
-const useCombinedPokemonData = (apiData) => {
+const useCombinedPokemonData = () => {
   const [combinedPokemonData, setCombinedPokemonData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  const {
-    data: arenaFightsData,
-    loading: arenaFightsLoading,
-    error: arenaFightsError,
-  } = useGetDbData("arenaFights");
 
   const {
     data: pokemonsData,
@@ -18,48 +13,59 @@ const useCombinedPokemonData = (apiData) => {
     error: pokemonsError,
   } = useGetDbData("pokemons");
 
+  const {
+    data: apiPokemonData,
+    loading: apiLoading,
+    error: apiError,
+  } = usePokemonApi(`pokemon?limit=150`);
+
   useEffect(() => {
-    if (arenaFightsData && pokemonsData && apiData) {
-      const fetchCombinedData = async () => {
-        try {
-          const combinedData = [
-            ...arenaFightsData.map((dbPokemon) => ({
-              ...dbPokemon,
-              fromDb: true,
-            })),
-            ...pokemonsData.map((dbPokemon) => ({
-              ...dbPokemon,
-              fromDb: true,
-            })),
-          ];
+    if (!pokemonsLoading && !apiLoading) {
+      if (pokemonsData && apiPokemonData) {
+        const fetchCombinedData = async () => {
+          try {
+            const combinedData = [
+              ...pokemonsData.map((dbPokemon) => ({
+                ...dbPokemon,
+                fromDb: true,
+              })),
+            ];
 
-          for (const apiPokemon of apiData.results) {
-            const response = await fetch(apiPokemon.url);
-            const data = await response.json();
+            for (const apiPokemon of apiPokemonData.results) {
+              const response = await fetch(apiPokemon.url);
+              const data = await response.json();
 
-            const existingPokemon = combinedData.find(
-              (p) => p.name === data.name
-            );
+              const existingPokemon = combinedData.find(
+                (p) => p.id === String(data.id)
+              );
 
-            if (!existingPokemon) {
-              combinedData.push({
-                ...data,
-                fromDb: false,
-                url: apiPokemon.url,
-              });
+              if (!existingPokemon) {
+                combinedData.push({
+                  ...data,
+                  fromDb: false,
+                  url: apiPokemon.url,
+                });
+              }
             }
+            setCombinedPokemonData(combinedData);
+            setLoading(false);
+          } catch (error) {
+            setError(error);
+            setLoading(false);
           }
-          setCombinedPokemonData(combinedData);
-          setLoading(false);
-        } catch (error) {
-          setError(error);
-          setLoading(false);
-        }
-      };
+        };
 
-      fetchCombinedData();
+        fetchCombinedData();
+      }
     }
-  }, [arenaFightsData, pokemonsData, apiData]);
+  }, [pokemonsLoading, apiLoading, pokemonsData, apiPokemonData]);
+
+  useEffect(() => {
+    if (pokemonsError || apiError) {
+      setError(pokemonsError || apiError);
+      setLoading(false);
+    }
+  }, [pokemonsError, apiError]);
 
   return { combinedPokemonData, loading, error };
 };

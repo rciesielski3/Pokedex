@@ -40,7 +40,6 @@ const useDataHandler = (endpoint) => {
   };
 
   const deleteData = async (id) => {
-    console.log("useDataHandler deleteData" + `${DB_URL}/${endpoint}/${id}`);
     try {
       const response = await fetch(`${DB_URL}/${endpoint}/${id}`, {
         method: "DELETE",

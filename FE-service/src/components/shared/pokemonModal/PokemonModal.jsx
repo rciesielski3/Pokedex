@@ -5,10 +5,11 @@ import ArenaIcon from "./ArenaIcon";
 import { useTheme } from "../../../context/ThemeContext";
 import { LoginContext } from "../../../context/LoginContext";
 import useTogglePokemonStatus from "./useTogglePokemonStatus";
+import { POKEMON_IMG } from "../../../../../apiConfig";
 
 const PokemonModal = ({ pokemon, onClose }) => {
   const { isLoggedIn } = useContext(LoginContext);
-  const { name, sprites, stats } = pokemon;
+  const { name, stats } = pokemon;
   const { theme } = useTheme();
   const { isFavorite, inArena, arenaPokemons, togglePokemonStatus } =
     useTogglePokemonStatus(pokemon);
@@ -30,10 +31,7 @@ const PokemonModal = ({ pokemon, onClose }) => {
             favorite={isFavorite}
           />
         )}
-        <PokemonImage
-          src={sprites?.other.dream_world.front_default}
-          alt={name}
-        />
+        <PokemonImage src={`${POKEMON_IMG}/${pokemon.id}.svg`} alt={name} />
         <h2 style={{ textTransform: "capitalize" }}>{name}</h2>
         <div>
           {stats.map((stat) => (

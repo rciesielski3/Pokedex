@@ -1,7 +1,7 @@
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   TextField,
@@ -31,15 +31,20 @@ const schema = z.object({
     .positive("Base Experience must be a positive number"),
 });
 
-const EditPokemonForm = ({ pokemonId, onClose }) => {
+const EditPokemonForm = ({ pokemonId, onClose, onPokemonUpdate }) => {
+  const { theme } = useTheme();
+  const [pokemonName, setPokemonName] = useState("");
+  const { putData, postData } = useDataHandler("pokemons");
   const {
     data: pokemonData,
     loading: pokemonLoading,
     error: pokemonError,
   } = useGetDbData("pokemons");
-  const { putData, postData } = useDataHandler("pokemons");
-
-  const { theme } = useTheme();
+  const {
+    data: pokemon,
+    loading: apiLoading,
+    error: apiError,
+  } = usePokemonApi(`pokemon/${pokemonId}`);
 
   const {
     register,
@@ -50,26 +55,62 @@ const EditPokemonForm = ({ pokemonId, onClose }) => {
     resolver: zodResolver(schema),
   });
 
-  const {
-    data: pokemon,
-    loading,
-    error,
-  } = usePokemonApi(`pokemon/${pokemonId}`);
+  useEffect(() => {
+    if (pokemonData && pokemonData.length > 0) {
+      const existingPokemon = pokemonData.find(
+        (p) => p.id === String(pokemonId)
+      );
+      if (existingPokemon) {
+        setPokemonName(existingPokemon.name);
+        setValue("height", existingPokemon.height);
+        setValue("weight", existingPokemon.weight);
+        setValue("base_experience", existingPokemon.base_experience);
+      } else {
+        setPokemonName(pokemon.name);
+        setValue("height", pokemon.height);
+        setValue("weight", pokemon.weight);
+        setValue("base_experience", pokemon.base_experience);
+      }
+    }
+  }, [pokemonData, pokemon, setValue, pokemonId]);
 
   useEffect(() => {
-    if (pokemon) {
-      setValue("height", pokemon.height);
-      setValue("weight", pokemon.weight);
-      setValue("base_experience", pokemon.base_experience);
-    }
-    if (error) {
-      enqueueSnackbar(`Error loading Pokémon data: ${error}`, {
+    if (apiError) {
+      enqueueSnackbar(`Error loading Pokémon data: ${apiError}`, {
         variant: "error",
       });
     }
-  }, [pokemon, error, setValue]);
+  }, [apiError]);
 
-  if (pokemonLoading) {
+  const handleEditPokemon = async (data) => {
+    const updatedPokemon = {
+      id: String(pokemon.id),
+      name: pokemonName,
+      height: data.height,
+      weight: data.weight,
+      base_experience: data.base_experience,
+      url: `${POKEMON_API_POKEMON}/${pokemon.id}`,
+    };
+
+    try {
+      if (pokemonData.find((p) => p.id === String(pokemon.id))) {
+        await putData(pokemonId, updatedPokemon);
+      } else {
+        await postData(updatedPokemon);
+      }
+      enqueueSnackbar(`Attributes for ${pokemonName} have been changed`, {
+        variant: "success",
+      });
+      onClose();
+      onPokemonUpdate(updatedPokemon);
+    } catch (error) {
+      enqueueSnackbar("Failed to update Pokémon. Please try again.", {
+        variant: "error",
+      });
+    }
+  };
+
+  if (pokemonLoading || apiLoading) {
     return <CircularProgress />;
   }
 
@@ -79,101 +120,70 @@ const EditPokemonForm = ({ pokemonId, onClose }) => {
     });
   }
 
-  const handleEditPokemon = async (data) => {
-    const updatedPokemon = {
-      id: String(pokemon.id),
-      name: pokemon.name,
-      height: data.height,
-      weight: data.weight,
-      base_experience: data.base_experience,
-      url: `${POKEMON_API_POKEMON}/${pokemon.id}`,
-    };
-
-    try {
-      if (pokemonData.find((p) => p.name === pokemon.name)) {
-        await putData(pokemonId, updatedPokemon);
-      } else {
-        await postData(updatedPokemon);
-      }
-      enqueueSnackbar(`Attributes for ${pokemon.name} have been changed`, {
-        variant: "success",
-      });
-      onClose();
-    } catch (error) {
-      enqueueSnackbar("Failed to update Pokémon. Please try again.", {
-        variant: "error",
-      });
-    }
-  };
-
   return createPortal(
     <ModalOverlay>
       <ModalContent theme={theme}>
         <Typography variant="h5">Edit Pokémon</Typography>
-        {loading ? (
-          <CircularProgress />
-        ) : (
-          <form onSubmit={handleSubmit(handleEditPokemon)}>
-            <FormContent>
-              <img
-                src={`${POKEMON_IMG}/${pokemon.id}.svg`}
-                alt={pokemon.name}
-                width={150}
-                height={150}
-              />
-              <PokemonName style={{ textTransform: "capitalize" }}>
-                {pokemon?.name}
-              </PokemonName>
-              <TextField
-                type="number"
-                label="Height"
-                {...register("height", { valueAsNumber: true })}
-                error={!!errors.height}
-                sx={{
-                  backgroundColor: "var(--background-color)",
-                  color: "var(--text-color)",
-                }}
-              />
-              {errors.height && (
-                <FormHelperText error>{errors.height.message}</FormHelperText>
-              )}
-              <TextField
-                type="number"
-                label="Weight"
-                {...register("weight", { valueAsNumber: true })}
-                error={!!errors.weight}
-                sx={{
-                  backgroundColor: "var(--background-color)",
-                  color: "var(--text-color)",
-                }}
-              />
-              {errors.weight && (
-                <FormHelperText error>{errors.weight.message}</FormHelperText>
-              )}
-              <TextField
-                type="number"
-                label="Base Experience"
-                {...register("base_experience", { valueAsNumber: true })}
-                error={!!errors.base_experience}
-                sx={{
-                  backgroundColor: "var(--background-color)",
-                  color: "var(--text-color)",
-                }}
-              />
-              {errors.base_experience && (
-                <FormHelperText error>
-                  {errors.base_experience.message}
-                </FormHelperText>
-              )}
-              <Button variant="contained" color="primary" type="submit">
-                Change Attributes
-              </Button>
-              <Button variant="contained" color="error" onClick={onClose}>
-                Close
-              </Button>
-            </FormContent>
-          </form>
-        )}
+        <form onSubmit={handleSubmit(handleEditPokemon)}>
+          <FormContent>
+            <img
+              src={`${POKEMON_IMG}/${pokemon.id}.svg`}
+              alt={pokemon.name}
+              width={150}
+              height={150}
+            />
+            <PokemonName style={{ textTransform: "capitalize" }}>
+              {pokemonName}
+            </PokemonName>
+            <TextField
+              type="number"
+              label="Height"
+              {...register("height", { valueAsNumber: true })}
+              error={!!errors.height}
+              sx={{
+                backgroundColor: "var(--background-color)",
+                color: "var(--text-color)",
+              }}
+            />
+            {errors.height && (
+              <FormHelperText error>{errors.height.message}</FormHelperText>
+            )}
+            <TextField
+              type="number"
+              label="Weight"
+              {...register("weight", { valueAsNumber: true })}
+              error={!!errors.weight}
+              sx={{
+                backgroundColor: "var(--background-color)",
+                color: "var(--text-color)",
+              }}
+            />
+            {errors.weight && (
+              <FormHelperText error>{errors.weight.message}</FormHelperText>
+            )}
+            <TextField
+              type="number"
+              label="Base Experience"
+              {...register("base_experience", { valueAsNumber: true })}
+              error={!!errors.base_experience}
+              sx={{
+                backgroundColor: "var(--background-color)",
+                color: "var(--text-color)",
+              }}
+            />
+            {errors.base_experience && (
+              <FormHelperText error>
+                {errors.base_experience.message}
+              </FormHelperText>
+            )}
+            <Button variant="contained" color="primary" type="submit">
+              Change Attributes
+            </Button>
+            <Button variant="contained" color="error" onClick={onClose}>
+              Close
+            </Button>
+          </FormContent>
+        </form>
       </ModalContent>
     </ModalOverlay>,
     document.body

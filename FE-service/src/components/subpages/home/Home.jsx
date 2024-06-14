@@ -21,16 +21,10 @@ const Home = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
-    data: apiPokemonsData,
-    loading: apiLoading,
-    error: apiError,
-  } = usePokemonApi(`pokemon?limit=150`);
-
-  const {
     combinedPokemonData,
     loading: combinedLoading,
     error: combinedError,
-  } = useCombinedPokemonData(apiPokemonsData);
+  } = useCombinedPokemonData();
 
   const [filteredPokemon, setFilteredPokemon] = useState([]);
   const [slicedPokemonData, setSlicedPokemonData] = useState([]);
@@ -64,15 +58,14 @@ const Home = () => {
     setCurrentPage(page);
   };
 
-  if (combinedLoading || apiLoading) {
+  if (combinedLoading) {
     return <CircularProgress />;
   }
 
-  if (combinedError || apiError) {
-    enqueueSnackbar(
-      `Error loading Pokémon data: ${combinedError || apiError.message}`,
-      { variant: "error" }
-    );
+  if (combinedError) {
+    enqueueSnackbar(`Error loading Pokémon data: ${combinedError}`, {
+      variant: "error",
+    });
     return null;
   }
 

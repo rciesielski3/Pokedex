@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CircularProgress } from "@mui/material";
 import {
   CardContainer,
@@ -13,16 +13,8 @@ import { enqueueSnackbar } from "notistack";
 import { POKEMON_IMG } from "../../../../../apiConfig";
 
 const PokemonCard = ({ pokemon }) => {
-  const { name, url } = pokemon;
-  if (!url) {
-    return (
-      <CardContainer>
-        <PokemonName>{name}</PokemonName>
-        <PokemonAttribute>No URL available</PokemonAttribute>
-      </CardContainer>
-    );
-  }
-  const endpoint = url.split("api/v2/")[1];
+  const { id, name, url, height, weight, base_experience } = pokemon;
+  const endpoint = url ? url.split("api/v2/")[1] : null;
   const { data, loading, error } = usePokemonApi(endpoint);
   const { theme } = useTheme();
 
@@ -32,32 +24,39 @@ const PokemonCard = ({ pokemon }) => {
     setModalOpen(!modalOpen);
   };
 
-  if (loading || !data) {
+  useEffect(() => {
+    if (error) {
+      enqueueSnackbar(`Error loading Pokémon data: ${error}`, {
+        variant: "error",
+      });
+    }
+  }, [error]);
+
+  if (loading) {
     return <CircularProgress />;
   }
 
-  if (error) {
-    return enqueueSnackbar(`Error loading Pokémon data: ${error}`, {
-      variant: "error",
-    });
-  }
-
-  const { height, weight, base_experience, abilities } = data;
+  const abilities =
+    data?.abilities?.map((ability) => ability.ability.name).join(", ") ||
+    "Unknown";
+  const stats = data?.stats;
 
   return (
     <>
-      {modalOpen && (
-        <PokemonModal pokemon={data} onClose={toggleModal} theme={theme} />
+      {modalOpen && data && (
+        <PokemonModal
+          pokemon={{ ...data, name, stats }}
+          onClose={toggleModal}
+          theme={theme}
+        />
       )}
       <CardContainer onClick={toggleModal} theme={theme}>
-        <PokemonImage src={`${POKEMON_IMG}/${pokemon.id}.svg`} alt={name} />
+        <PokemonImage src={`${POKEMON_IMG}/${id}.svg`} alt={name} />
         <PokemonName>{name}</PokemonName>
         <PokemonAttribute>Height: {height}</PokemonAttribute>
         <PokemonAttribute>Weight: {weight}</PokemonAttribute>
         <PokemonAttribute>Base Experience: {base_experience}</PokemonAttribute>
-        <PokemonAttribute>
-          Ability: {abilities[0].ability.name}
-        </PokemonAttribute>
+        <PokemonAttribute>Abilities: {abilities}</PokemonAttribute>
       </CardContainer>
     </>
   );

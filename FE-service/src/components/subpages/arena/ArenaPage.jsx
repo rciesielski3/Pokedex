@@ -32,7 +32,7 @@ const ArenaPage = () => {
     data: arenaFightsData,
     loading: fightsLoading,
     error: fightsError,
-  } = useGetDbData("arenaFights");
+  } = useGetDbData("pokemons");
 
   const [selectedPokemons, setSelectedPokemons] = useState([]);
   const { theme } = useTheme();

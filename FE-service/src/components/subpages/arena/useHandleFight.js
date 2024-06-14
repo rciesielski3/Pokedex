@@ -11,7 +11,7 @@ const useHandleFight = (
   const { deleteData: deleteArenaPokemonData } =
     useDataHandler("arenaPokemons");
   const { postData: postFightResultData, putData: putFightResultData } =
-    useDataHandler("arenaFights");
+    useDataHandler("pokemons");
 
   const [winner, setWinner] = useState(null);
   const [draw, setDraw] = useState(false);

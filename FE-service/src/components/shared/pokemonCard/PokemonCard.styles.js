@@ -24,6 +24,7 @@ export const PokemonImage = styled.img`
   width: 150px;
   height: 150px;
   margin-bottom: 10px;
+  justify-self: center;
 `;
 
 export const PokemonName = styled.h2`

@@ -7,7 +7,6 @@ import PokemonList from "../../shared/pokemonList/PokemonList";
 import { useTheme } from "../../../context/ThemeContext";
 import Pagination from "../../../services/pagination/Pagination";
 import usePagination from "../../../hooks/usePagination";
-import usePokemonApi from "../../../hooks/usePokemonApi";
 import useCombinedPokemonData from "../../../hooks/useCombinedPokemonData";
 import { enqueueSnackbar } from "notistack";
 
@@ -20,22 +19,17 @@ const EditionPage = () => {
   const [editPokemonId, setEditPokemonId] = useState(null);
 
   const {
-    data: apiPokemonsData,
-    loading: apiLoading,
-    error: apiError,
-  } = usePokemonApi("pokemon?limit=150");
-
-  const {
     combinedPokemonData,
     loading: combinedLoading,
     error: combinedError,
-  } = useCombinedPokemonData(apiPokemonsData);
+    fetchData,
+  } = useCombinedPokemonData();
 
   useEffect(() => {
-    if (combinedPokemonData && apiPokemonsData) {
+    if (combinedPokemonData) {
       setPokemonDetails(combinedPokemonData);
     }
-  }, [combinedPokemonData, apiPokemonsData]);
+  }, [combinedPokemonData]);
 
   const handleCreateClick = () => {
     setShowCreateForm(true);
@@ -45,9 +39,17 @@ const EditionPage = () => {
     setEditPokemonId(id);
   };
 
-  const handleCloseForm = () => {
+  const handleCloseForm = async () => {
     setShowCreateForm(false);
     setEditPokemonId(null);
+  };
+
+  const handlePokemonUpdate = (updatedPokemon) => {
+    setPokemonDetails((prevDetails) =>
+      prevDetails.map((pokemon) =>
+        pokemon.id === updatedPokemon.id ? updatedPokemon : pokemon
+      )
+    );
   };
 
   const {
@@ -57,15 +59,14 @@ const EditionPage = () => {
     handlePageChange,
   } = usePagination(pokemonDetails, ITEMS_PER_PAGE);
 
-  if (combinedLoading || apiLoading) {
+  if (combinedLoading) {
     return <CircularProgress />;
   }
 
-  if (combinedError || apiError) {
-    enqueueSnackbar(
-      `Error loading Pokémon data: ${combinedError || apiError.message}`,
-      { variant: "error" }
-    );
+  if (combinedError) {
+    enqueueSnackbar(`Error loading Pokémon data: ${combinedError}`, {
+      variant: "error",
+    });
     return null;
   }
 
@@ -98,7 +99,11 @@ const EditionPage = () => {
       )}
       {showCreateForm && <PokemonForm onClose={handleCloseForm} />}
       {editPokemonId && (
-        <EditPokemonForm onClose={handleCloseForm} pokemonId={editPokemonId} />
+        <EditPokemonForm
+          onClose={handleCloseForm}
+          pokemonId={editPokemonId}
+          onPokemonUpdate={handlePokemonUpdate}
+        />
       )}
     </EditionContainer>
   );
